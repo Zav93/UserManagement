@@ -99,6 +99,14 @@ trait AuthenticatesUsers
      */
     protected function sendLoginResponse(Request $request)
     {
+        if (!$this->guard()->user()->active) {
+            $this->guard()->logout();
+
+            $request->session()->invalidate();
+
+            return view('users.disabled');
+        }
+
         $request->session()->regenerate();
 
         $this->clearLoginAttempts($request);

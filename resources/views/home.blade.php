@@ -27,15 +27,15 @@
                                         <td>{{ $user->username }}</td>
                                         <td>
                                             <label class="switch">
-                                                <input type="checkbox" name="status" {{ $user->active && !is_null($user->active) ? 'checked' : '' }}>
+                                                <input id="update_status_{{ $user->id }}" type="checkbox" onclick="updateStatus({{ $user->id }})" name="status" {{ $user->active && !is_null($user->active) ? 'checked' : '' }}>
                                                 <span class="slider round"></span>
                                             </label>
                                         </td>
                                         <td>
-                                            <a href="user/{{ $user->id }}/edit">
+                                            <a href="users/{{ $user->id }}/edit">
                                                 <button type="button" class="btn btn-primary btn-sm">Edit</button>
                                             </a>
-                                            <form class="custom-delete-btn" action="user/{{ $user->id }}">
+                                            <form class="custom-delete-btn" action="users/{{ $user->id }}" method="post">
                                                 {{ csrf_field() }}
                                                 {{ method_field('DELETE') }}
                                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
@@ -45,7 +45,7 @@
                                 </tbody>
                             @endforeach
                         </table>
-                    {!!  $users->render() !!}
+                    {!!  $users->links() !!}
                 @else
                 <div class="card-body">
                     @if (session('status'))
@@ -61,3 +61,53 @@
     </div>
 </div>
 @endsection
+
+<script>
+//    function updateStatus(userId) {
+//        console.log(555555);
+//        $('#update_status_' + userId).click(function(e) {
+//            var value;
+//            console.log(this.checked);
+//            if(this.checked == true) {
+//                value = 1
+//            } else {
+//                value = 0;
+//            }
+//            console.log(value + 33333);
+//            $.ajax({
+//                type: "GET",
+//                url: "users/updateStatus",
+//                data: { "active": value },
+//                async: false,
+//                success: function (data) {
+//                    alert(data);
+//                },
+//                error: function (data) {
+//                    alert("fail");
+//                }
+//            });
+//        });
+//
+//    }
+function updateStatus(userId) {
+    var checkbox = document.getElementById('update_status_' + userId);
+    var value;
+
+    if (checkbox.checked == true)
+        value = '1';
+    else
+        value = '0';
+
+    $.ajax({
+        type: "POST",
+        url: "users/status",
+        data: { active: value, user_id: userId },
+        success: function (data) {
+            alert('Status updated');
+        },
+        error: function (data) {
+            alert("something went wrong");
+        }
+    });
+}
+</script>

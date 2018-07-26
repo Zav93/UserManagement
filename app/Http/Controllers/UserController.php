@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateStatusRequest;
 use App\Http\Requests\users\UpdateRequest;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function __construct() {
-        $this->middleware('auth:admin');
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -70,16 +68,25 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param Request $request
      * @param User $user
      * @return \Illuminate\Http\Response
      * @internal param int $id
      */
-    public function update(UpdateRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
+        $this->validator($request->all())->validate();
         $user->update($request->all());
 
         return redirect('/');
+    }
+
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'string|max:255',
+        ]);
     }
 
     /**
@@ -94,5 +101,12 @@ class UserController extends Controller
         $user->delete();
 
         return back();
+    }
+
+    public function updateStatus(UpdateStatusRequest $request)
+    {
+        $user = User::findOrFail($request->user_id);
+        $user->active = $request->active;
+        $user->save();
     }
 }
